@@ -1,24 +1,36 @@
 // scripts/admin-edit-event.js
-
 import { auth } from "../firebase-config.js";
 import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 let currentUser = null;
-let currentEventId = null;
+let events = [];
+let selectedEventId = null;
 let currentImageUrl = null;
+let genresList = [];
 
-// DOM refs (match editEvent.html)
-const form = document.getElementById("edit-event-form");
+// DOM refs
 const alertBox = document.getElementById("form-alert");
+const eventsGrid = document.getElementById("events-grid");
+const noEvents = document.getElementById("no-events");
+const editFormSection = document.getElementById("edit-form");
+const editSubtitle = document.getElementById("edit-subtitle");
+const form = document.getElementById("edit-event-form");
 const submitBtn = document.getElementById("submit-btn");
+const cancelBtn = document.getElementById("cancel-btn");
 
 const titleInput = document.getElementById("title");
 const descInput = document.getElementById("description");
 const dateInput = document.getElementById("date");
 const timeInput = document.getElementById("time");
 const locationInput = document.getElementById("location");
+const ageInput = document.getElementById("age_restriction");
+const priceInput = document.getElementById("price");
+const latInput = document.getElementById("lat");
+const lngInput = document.getElementById("lng");
+const statusSelect = document.getElementById("status");
+const genreSelection = document.getElementById("genre-selection");
 
 const imageFileInput = document.getElementById("image_file");
 const imagePreviewWrapper = document.getElementById("image-preview-wrapper");
@@ -26,15 +38,10 @@ const imagePreview = document.getElementById("image-preview");
 
 // ---------- helpers ----------
 function showAlert(message, type = "info") {
-  if (!alertBox) {
-    if (message) console.log("ALERT:", type, message);
-    return;
-  }
+  if (!alertBox) return;
   alertBox.textContent = message;
-  alertBox.className = "";
-  if (message) {
-    alertBox.classList.add("alert", `alert-${type}`);
-  }
+  alertBox.className = message ? `alert ${type}` : "alert";
+  alertBox.style.display = message ? "block" : "none";
 }
 
 function toggleSubmit(disabled) {
@@ -78,46 +85,124 @@ async function ensureAdmin(user) {
   return true;
 }
 
-// ---------- LOAD ONE EVENT (from api/events.php) ----------
-async function loadEvent() {
-  if (!currentEventId) return;
+// ---------- UI rendering ----------
+function renderEventsGrid() {
+  eventsGrid.innerHTML = "";
 
-  showAlert("Loading event...", "info");
-
-  const res = await fetch(
-    `api/events.php?id=${encodeURIComponent(currentEventId)}`
-  );
-
-  let data;
-  try {
-    data = await res.json();
-  } catch (err) {
-    console.error("Invalid JSON from events.php", err);
-    throw new Error("Invalid response from server while loading event.");
+  if (!events.length) {
+    noEvents.style.display = "block";
+    editFormSection.classList.remove("active");
+    return;
   }
 
-  if (!res.ok || data.success === false) {
-    throw new Error(data.error || "Failed to load event");
-  }
+  noEvents.style.display = "none";
 
-  const ev = data.event;
+  events.forEach((ev) => {
+    const card = document.createElement("article");
+    card.className = "event-card" + (ev.id === selectedEventId ? " selected" : "");
 
+    const statusClass =
+      ev.status === "draft"
+        ? "status-draft"
+        : ev.status === "archived"
+        ? "status-archived"
+        : "status-published";
+
+    card.innerHTML = `
+      <div class="event-card-header">
+        <div>
+          <h3 class="event-card-title">${ev.name || "Untitled"}</h3>
+          <div class="event-card-info">${ev.location || "Unknown location"}</div>
+        </div>
+        <span class="event-card-status ${statusClass}">${ev.status || ""}</span>
+      </div>
+      <div class="event-card-info">${ev.date || "No date"} at ${ev.time || "--"}</div>
+      ${ev.genres?.length ? `<div class="event-genres">${ev.genres
+        .map((g) => `<span class="genre-tag">${g}</span>`)
+        .join("")}</div>` : ""}
+    `;
+
+    card.addEventListener("click", () => selectEvent(ev.id));
+    eventsGrid.appendChild(card);
+  });
+}
+
+function setGenresSelection(selected) {
+  const ids = new Set((selected || []).map((id) => Number(id)));
+  document
+    .querySelectorAll('input[name="genres[]"]')
+    .forEach((cb) => (cb.checked = ids.has(Number(cb.value))));
+}
+
+function populateForm(ev) {
   titleInput.value = ev.name || "";
   descInput.value = ev.description || "";
   dateInput.value = ev.date || "";
   timeInput.value = ev.time || "";
   locationInput.value = ev.location || "";
+  ageInput.value = ev.age_restriction ?? "";
+  priceInput.value = ev.price ?? "";
+  latInput.value = ev.lat ?? "";
+  lngInput.value = ev.lng ?? "";
+  statusSelect.value = ev.status || "published";
+
+  // Only primary genre is available from API, so preselect that one
+  const selectedGenres = ev.genre_id ? [Number(ev.genre_id)] : [];
+  setGenresSelection(selectedGenres);
 
   currentImageUrl = ev.image_url || null;
-  updatePreview(currentImageUrl || "");
+  updatePreview(currentImageUrl);
 
-  showAlert("");
+  editSubtitle.textContent = ev.name ? `Editing: ${ev.name}` : "Editing event";
+  editFormSection.classList.add("active");
 }
 
-// ---------- IMAGE UPLOAD ----------
+// ---------- data loading ----------
+async function loadGenres() {
+  genreSelection.innerHTML = "Loading genres...";
+  const res = await fetch("api/genres.php");
+  const data = await res.json();
+
+  genresList = data.genres || [];
+  genreSelection.innerHTML = "";
+
+  genresList.forEach((g) => {
+    const label = document.createElement("label");
+    label.classList.add("genre-option");
+    label.innerHTML = `
+      <input type="checkbox" value="${g.id}" name="genres[]" />
+      <span>${g.name}</span>
+    `;
+    genreSelection.appendChild(label);
+  });
+}
+
+async function loadEvents() {
+  const res = await fetch("api/admin/events.php", {
+    headers: {
+      Authorization: `Bearer ${await currentUser.getIdToken()}`,
+      "X-Firebase-UID": currentUser.uid,
+    },
+  });
+
+  const data = await res.json();
+  if (!res.ok || data.success === false) {
+    throw new Error(data.error || "Failed to load events");
+  }
+
+  events = data.events || [];
+  renderEventsGrid();
+
+  const fromUrl = getEventIdFromUrl();
+  const initialId = fromUrl ? Number(fromUrl) : events[0]?.id;
+  if (initialId) {
+    selectEvent(initialId);
+  }
+}
+
+// ---------- API helpers ----------
 async function uploadImageFile(file) {
   if (!file || !currentUser) return null;
-
   showAlert("Uploading image...", "info");
 
   const idToken = await currentUser.getIdToken();
@@ -134,7 +219,6 @@ async function uploadImageFile(file) {
   });
 
   const data = await res.json();
-
   if (!res.ok || !data.success) {
     throw new Error(data.error || "Image upload failed");
   }
@@ -142,13 +226,21 @@ async function uploadImageFile(file) {
   return data.url;
 }
 
-// ---------- SUBMIT (SAVE CHANGES) ----------
+async function selectEvent(eventId) {
+  const match = events.find((e) => e.id === Number(eventId));
+  if (!match) return;
+
+  selectedEventId = Number(eventId);
+  renderEventsGrid();
+  populateForm(match);
+  showAlert("");
+}
+
+// ---------- submit handling ----------
 async function handleSubmit(e) {
   e.preventDefault();
-  showAlert("");
-
-  if (!currentUser || !currentEventId) {
-    showAlert("Missing user or event id.", "error");
+  if (!selectedEventId) {
+    showAlert("Select an event to edit.", "error");
     return;
   }
 
@@ -164,54 +256,52 @@ async function handleSubmit(e) {
   }
 
   toggleSubmit(true);
-
   try {
-    // If a new file is selected, upload and override currentImageUrl
     const file = imageFileInput.files[0];
     let imageUrl = currentImageUrl;
-
     if (file) {
       imageUrl = await uploadImageFile(file);
       currentImageUrl = imageUrl;
       updatePreview(imageUrl);
     }
 
+    const genresSelected = Array.from(
+      document.querySelectorAll('input[name="genres[]"]:checked')
+    ).map((cb) => Number(cb.value));
+
     const payload = {
-      id: Number(currentEventId), // 🔥 tell backend we’re updating this event
       name,
       description,
       date,
       time,
       location,
+      age_restriction: ageInput.value ? Number(ageInput.value) : null,
+      price: priceInput.value ? Number(priceInput.value) : 0,
+      lat: latInput.value || null,
+      lng: lngInput.value || null,
+      status: statusSelect.value,
+      genres: genresSelected,
       image_url: imageUrl,
     };
 
-    const idToken = await currentUser.getIdToken();
-
-    // Reuse existing admin events endpoint (same as Add Event, but with id)
-    const res = await fetch("api/admin/events.php", {
-      method: "POST", // your add event uses POST, so update can too
+    const res = await fetch(`api/admin/events.php?id=${selectedEventId}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
+        Authorization: `Bearer ${await currentUser.getIdToken()}`,
         "X-Firebase-UID": currentUser.uid,
       },
       body: JSON.stringify(payload),
     });
 
-    const raw = await res.text();
-    let data = {};
-    try {
-      data = raw ? JSON.parse(raw) : {};
-    } catch (err) {
-      console.warn("Non-JSON response from events.php:", raw);
-    }
-
+    const data = await res.json();
     if (!res.ok || data.success === false) {
-      throw new Error(data.error || raw || "Update failed");
+      throw new Error(data.error || "Update failed");
     }
 
     showAlert("Event updated successfully!", "success");
+    await loadEvents();
+    selectEvent(selectedEventId);
   } catch (err) {
     console.error("Edit event error:", err);
     showAlert(err.message, "error");
@@ -220,15 +310,14 @@ async function handleSubmit(e) {
   }
 }
 
-// ---------- INIT ----------
-function init() {
-  currentEventId = getEventIdFromUrl();
-  if (!currentEventId) {
-    alert("Missing ?id= in URL for event.");
-    window.location.href = "admin.html";
-    return;
+function handleCancel() {
+  if (selectedEventId) {
+    selectEvent(selectedEventId);
   }
+}
 
+// ---------- init ----------
+function init() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "login.html";
@@ -236,10 +325,10 @@ function init() {
     }
 
     currentUser = user;
-
     try {
       await ensureAdmin(user);
-      await loadEvent(); // uses api/events.php?id=...
+      await loadGenres();
+      await loadEvents();
     } catch (err) {
       console.error("Error initializing edit page:", err);
       alert(err.message || "Unable to load event.");
@@ -247,15 +336,12 @@ function init() {
     }
   });
 
-  if (form) {
-    form.addEventListener("submit", handleSubmit);
-  }
-
+  if (form) form.addEventListener("submit", handleSubmit);
+  if (cancelBtn) cancelBtn.addEventListener("click", handleCancel);
   if (imageFileInput) {
     imageFileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       try {
         const url = await uploadImageFile(file);
         currentImageUrl = url;
