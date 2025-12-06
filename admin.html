@@ -1,54 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="event-add.css" />
-</head>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="admin-dashboard.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#admin-main">Skip to content</a>
 
-<body>
+    <!-- HEADER / NAV -->
+    <header class="tm-navbar">
+      <div class="tm-nav-content">
+        <div class="tm-logo">
+          <a href="index.html">EventFinder</a>
+        </div>
 
-    <aside class="sidebar">
-        <h2 class="logo">Eventify Admin</h2>
-        <nav>
-            <a class="nav-link active" href="admin.html">Dashboard</a>
-            <a class="nav-link" href="addEvents.html">Add Event</a>
-            <a class="nav-link" href="edit-event.html">Manage Events</a>
-            <a class="nav-link" href="index.html">Home</a>
+        <nav class="tm-links">
+          <a href="index.html">Home</a>
+          <a href="favorites.html" id="favorites-link" style="display: none">Favorites</a>
+          <a href="registrations.html" id="registrations-link" style="display: none">Registrations</a>
+          <a href="account.html" id="profile-link" style="display: none">Account</a>
+          <a href="admin.html" class="active" id="admin-link">Admin</a>
         </nav>
-    </aside>
 
-    <main class="content">
-        <header class="page-header">
-            <h1>Admin Dashboard</h1>
-            <p>Select an option below to continue.</p>
-        </header>
+        <div class="tm-search">
+          <input type="text" id="header-search" placeholder="Search events..." />
+          <button id="header-search-btn"><span>Search</span></button>
+        </div>
 
-        <section class="dashboard-options">
-            <div class="admin-card">
-                <h2>Add New Event</h2>
-                <p>Create and publish a new event.</p>
-                <a href="addEvents.html" class="btn">Go to Add Event</a>
-            </div>
+        <div class="tm-auth">
+          <a href="login.html" class="tm-login-btn" id="login-btn">Login</a>
+          <div class="user-menu" id="user-menu" style="display: none">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="admin-badge" id="admin-badge" style="display: none">ADMIN</div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-            <div class="admin-card">
-                <h2>Manage Events</h2>
-                <p>Edit or delete existing events.</p>
-                <a href="edit-event.html" class="btn">Go to Manage Events</a>
-            </div>
+    <main id="admin-main">
+      <section class="admin-hero">
+        <div>
+          <p class="eyebrow">Admin area</p>
+          <h1>Welcome back</h1>
+          <p class="lede">
+            Manage events, review registrations, and jump into the tools you use most.
+          </p>
 
-            <div class="admin-card">
-                <h2>Return Home</h2>
-                <p>Go back to the main public website.</p>
-                <a href="index.html" class="btn">Home Page</a>
-            </div>
-        </section>
+          <div class="quick-actions">
+            <a class="qa-btn primary" href="addEvents.html">Add event</a>
+            <a class="qa-btn" href="edit-event.html">Manage events</a>
+            <a class="qa-btn ghost" href="index.html">View site</a>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Recently active</div>
+          <div class="summary-value" id="stat-recent">--</div>
+          <p class="summary-caption">Events or registrations created lately</p>
+        </div>
+      </section>
 
-        <footer class="footer">
-            <p>© 2025 Eventify Admin</p>
-        </footer>
+      <section class="stats-grid" aria-label="Key metrics">
+        <div class="stat-card">
+          <p class="stat-label">Total events</p>
+          <p class="stat-value" id="stat-events">--</p>
+          <p class="stat-helper" id="stat-upcoming">-- upcoming</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Users</p>
+          <p class="stat-value" id="stat-users">--</p>
+          <p class="stat-helper">Audience size</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Registrations</p>
+          <p class="stat-value" id="stat-registrations">--</p>
+          <p class="stat-helper" id="stat-cancellations">-- canceled</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Capacity</p>
+          <p class="stat-value" id="stat-capacity">--</p>
+          <p class="stat-helper">
+            <span id="stat-available">-- available</span>
+            <span class="bullet">•</span>
+            <span id="stat-utilization">--</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+        <article class="panel" id="recent-registrations">
+          <div class="panel-header">
+            <h2>Recent registrations</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>User</th>
+                  <th>Status</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="loading-row">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel" id="recent-events">
+          <div class="panel-header">
+            <h2>Recent events</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Created by</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="loading-row">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel" id="genre-breakdown">
+          <div class="panel-header">
+            <h2>Genre breakdown</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Genre</th>
+                  <th>Events</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="2" class="loading-row">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel" id="actions-panel">
+          <div class="panel-header">
+            <h2>Admin activity</h2>
+            <span class="pill">Owner only</span>
+          </div>
+          <div class="table-wrapper" id="recent-actions">
+            <table>
+              <thead>
+                <tr>
+                  <th>Admin</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="loading-row">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
     </main>
 
-</body>
+    <footer>
+      <p>© 2025 Event Finder</p>
+      <p class="disclaimer">Admin tools for managing your events.</p>
+    </footer>
+
+    <script type="module" src="scripts/admin-dashboard.js"></script>
+  </body>
 </html>
