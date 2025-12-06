@@ -55,6 +55,8 @@
             <span id="user-email">john@example.com</span>
           </li>
           <li><strong>Age:</strong> <span id="user-age">22</span></li>
+          <li><strong>Phone:</strong> <span id="user-phone">N/A</span></li>
+          <li><strong>Location:</strong> <span id="user-location">N/A</span></li>
           <li>
             <strong>Member Since:</strong>
             <span id="user-joined">January 2025</span>
@@ -66,28 +68,19 @@
         <button id="logout-btn" type="button">Logout</button>
       </section>
 
-      <!-- REGISTERED EVENTS -->
+      <!-- QUICK LINKS -->
       <section id="registered-events">
-        <h3>Your Registered Events</h3>
+        <h3>Your Activity</h3>
 
-        <div id="registered-events-container">
-          <!-- Example registered event card -->
-          <div class="registered-event-card">
-            <h4>Sample Registered Event</h4>
-            <p class="event-details">Location • Date • Time</p>
-            <button class="details-btn">View Details</button>
-          </div>
-
-          <!-- More cards inserted by JS -->
+        <div class="quick-actions">
+          <button id="registered-events-btn" class="primary-btn">
+            View Registered Events
+          </button>
+          <button id="favorite-events-btn" class="secondary-btn">
+            View Favorite Events
+          </button>
+          <button id="delete-account-btn" class="danger-btn">Delete Account</button>
         </div>
-      </section>
-
-      <!-- USER SETTINGS -->
-      <section id="user-settings">
-        <h3>Settings</h3>
-
-        <button id="notification-settings-btn">Notification Settings</button>
-        <button id="delete-account-btn">Delete Account</button>
       </section>
     </main>
 

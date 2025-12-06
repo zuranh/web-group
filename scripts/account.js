@@ -13,6 +13,8 @@ function showProfile(userData, fallbackEmail) {
   const userNameEl = document.getElementById("user-name");
   const userEmailEl = document.getElementById("user-email");
   const userAgeEl = document.getElementById("user-age");
+  const userPhoneEl = document.getElementById("user-phone");
+  const userLocationEl = document.getElementById("user-location");
   const userJoinedEl = document.getElementById("user-joined");
 
   if (userNameEl) userNameEl.textContent = userData.name || "N/A";
@@ -25,6 +27,14 @@ function showProfile(userData, fallbackEmail) {
     } else {
       userAgeEl.textContent = "N/A";
     }
+  }
+
+  if (userPhoneEl) {
+    userPhoneEl.textContent = userData.phone || "N/A";
+  }
+
+  if (userLocationEl) {
+    userLocationEl.textContent = userData.location || "N/A";
   }
 
   if (userJoinedEl) {
@@ -138,7 +148,8 @@ function initAccountPage() {
   const changePasswordBtn = document.getElementById("change-password-btn");
   const logoutBtn = document.getElementById("logout-btn");
   const deleteAccountBtn = document.getElementById("delete-account-btn");
-  const notificationBtn = document.getElementById("notification-settings-btn");
+  const registeredEventsBtn = document.getElementById("registered-events-btn");
+  const favoriteEventsBtn = document.getElementById("favorite-events-btn");
 
   if (editProfileBtn) {
     editProfileBtn.addEventListener("click", () => {
@@ -170,11 +181,15 @@ function initAccountPage() {
     deleteAccountBtn.addEventListener("click", handleDeleteAccount);
   }
 
-  if (notificationBtn) {
-    notificationBtn.addEventListener("click", () => {
-      alert(
-        "Notification settings are not implemented yet. You can mention this as a future enhancement in your report."
-      );
+  if (registeredEventsBtn) {
+    registeredEventsBtn.addEventListener("click", () => {
+      window.location.href = "registrations.html";
+    });
+  }
+
+  if (favoriteEventsBtn) {
+    favoriteEventsBtn.addEventListener("click", () => {
+      window.location.href = "favorites.html";
     });
   }
 }
