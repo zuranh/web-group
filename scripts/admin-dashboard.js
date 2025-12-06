@@ -140,7 +140,6 @@ function renderRecentEvents(rows) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${escapeHtml(row.title || 'Untitled')}</td>
-      <td><span class="status-pill status-${row.status || 'draft'}">${row.status || 'draft'}</span></td>
       <td>${formatDate(row.date)}</td>
       <td>${escapeHtml(row.creator_name || 'Unknown')}</td>
     `;

@@ -56,7 +56,7 @@ try {
     ];
 
     $upcomingStmt = $db->query(
-        "SELECT COUNT(*) FROM events WHERE (status IS NULL OR status NOT IN ('archived')) AND (date IS NULL OR date >= CURDATE())"
+        "SELECT COUNT(*) FROM events WHERE (date IS NULL OR date >= CURDATE())"
     );
     $counts['upcoming'] = (int) $upcomingStmt->fetchColumn();
 
@@ -93,7 +93,7 @@ try {
 
     $recentEvents = $db
         ->query(
-            "SELECT e.id, e.title, e.status, e.date, u.name AS creator_name
+            "SELECT e.id, e.title, e.date, u.name AS creator_name
              FROM events e
              LEFT JOIN users u ON u.id = e.created_by
              ORDER BY e.created_at DESC

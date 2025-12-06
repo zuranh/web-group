@@ -97,7 +97,6 @@ async function handleSubmit(e) {
       lat: document.getElementById("lat").value || null,
       lng: document.getElementById("lng").value || null,
       genres: Array.from(document.querySelectorAll('input[name="genres[]"]:checked')).map(cb => Number(cb.value)),
-      status: "published"
     };
 
     if (imageFileInput.files[0]) {

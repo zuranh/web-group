@@ -28,7 +28,6 @@ const locationInput = document.getElementById("location");
 const priceInput = document.getElementById("price");
 const latInput = document.getElementById("lat");
 const lngInput = document.getElementById("lng");
-const statusSelect = document.getElementById("status");
 const genreSelection = document.getElementById("genre-selection");
 
 const imageFileInput = document.getElementById("image_file");
@@ -118,20 +117,12 @@ function renderEventsGrid() {
     const card = document.createElement("article");
     card.className = "event-card" + (ev.id === selectedEventId ? " selected" : "");
 
-    const statusClass =
-      ev.status === "draft"
-        ? "status-draft"
-        : ev.status === "archived"
-        ? "status-archived"
-        : "status-published";
-
     card.innerHTML = `
       <div class="event-card-header">
         <div>
           <h3 class="event-card-title">${ev.name || "Untitled"}</h3>
           <div class="event-card-info">${ev.location || "Unknown location"}</div>
         </div>
-        <span class="event-card-status ${statusClass}">${ev.status || ""}</span>
       </div>
       <div class="event-card-info">${ev.date || "No date"} at ${ev.time || "--"}</div>
       ${ev.genres?.length ? `<div class="event-genres">${ev.genres
@@ -160,8 +151,6 @@ function populateForm(ev) {
   priceInput.value = ev.price ?? "";
   latInput.value = ev.lat ?? "";
   lngInput.value = ev.lng ?? "";
-  statusSelect.value = ev.status || "published";
-
   // Only primary genre is available from API, so preselect that one
   const selectedGenres = ev.genre_id ? [Number(ev.genre_id)] : [];
   setGenresSelection(selectedGenres);
@@ -309,7 +298,6 @@ async function handleSubmit(e) {
       price: priceInput.value ? Number(priceInput.value) : 0,
       lat: latInput.value || null,
       lng: lngInput.value || null,
-      status: statusSelect.value,
       genres: genresSelected,
       image_url: imageUrl,
     };

@@ -20,13 +20,13 @@ function distance_km($lat1, $lon1, $lat2, $lon2) {
 try {
     $db = require __DIR__ . '/db.php';
 
-    // Single event fetch (ensure published)
+    // Single event fetch
     if (isset($_GET['id'])) {
         $stmt = $db->prepare('
             SELECT e.*, u.name AS owner_name
             FROM events e
             LEFT JOIN users u ON e.owner_id = u.id
-            WHERE e.id = :id AND e.status = "published"
+            WHERE e.id = :id
         ');
         $stmt->execute([':id' => $_GET['id']]);
         $event = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -51,7 +51,7 @@ try {
         exit;
     }
 
-    $where = ["e.status = 'published'"];
+    $where = ["1=1"];
     $params = [];
 
     if (!empty($_GET['search'])) {

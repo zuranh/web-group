@@ -168,8 +168,6 @@ if ($method === 'POST') {
         }
     }
 
-    $status = 'published';
-
     $genres = isset($input['genres']) && is_array($input['genres']) ? $input['genres'] : [];
 
     $primaryGenre = $genres[0] ?? null;
@@ -178,9 +176,9 @@ if ($method === 'POST') {
 
     $stmt = $db->prepare(
         "INSERT INTO events
-            (name, description, location, lat, lng, date, time, price, image_url, status, genre_id, owner_id, capacity, available_spots)
+            (name, description, location, lat, lng, date, time, price, image_url, genre_id, owner_id, capacity, available_spots)
          VALUES
-            (:name, :description, :location, :lat, :lng, :date, :time, :price, :image_url, :status, :genre_id, :owner_id, :capacity, :available_spots)"
+            (:name, :description, :location, :lat, :lng, :date, :time, :price, :image_url, :genre_id, :owner_id, :capacity, :available_spots)"
     );
 
     $stmt->execute([
@@ -193,7 +191,6 @@ if ($method === 'POST') {
         ':time' => $input['time'],
         ':price' => sanitizeFloat($input['price'] ?? 0),
         ':image_url' => $input['image_url'] ?? null,
-        ':status' => $status,
         ':genre_id' => $primaryGenre,
         ':owner_id' => $currentUser['id'],
         ':capacity' => $capacity ?? 0,
@@ -226,11 +223,6 @@ if ($method === 'PUT') {
         respond(404, ['success' => false, 'error' => 'Event not found']);
     }
 
-    $status = $input['status'] ?? $existing['status'];
-    if (!in_array($status, ['draft', 'published', 'archived'], true)) {
-        respond(422, ['success' => false, 'error' => 'Invalid status']);
-    }
-
     $capacity = array_key_exists('capacity', $input) ? sanitizeInt($input['capacity']) : $existing['capacity'];
     $regStmt = $db->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = :event_id AND status = 'registered'");
     $regStmt->execute([':event_id' => $eventId]);
@@ -248,7 +240,7 @@ if ($method === 'PUT') {
             time = :time,
             price = :price,
             image_url = :image_url,
-            status = :status,
+            status = 'published',
             genre_id = :genre_id,
             capacity = :capacity,
             available_spots = :available_spots
@@ -265,7 +257,6 @@ if ($method === 'PUT') {
         ':time' => $input['time'] ?? $existing['time'],
         ':price' => array_key_exists('price', $input) ? sanitizeFloat($input['price']) : $existing['price'],
         ':image_url' => array_key_exists('image_url', $input) ? $input['image_url'] : $existing['image_url'],
-        ':status' => $status,
         ':genre_id' => isset($input['genres'][0]) ? $input['genres'][0] : $existing['genre_id'],
         ':capacity' => $capacity,
         ':available_spots' => $available,

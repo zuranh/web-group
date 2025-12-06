@@ -112,7 +112,6 @@ function renderEvent() {
       ? `$${parseFloat(event.price).toFixed(2)}`
       : "FREE";
   document.getElementById("info-price").textContent = price;
-  document.getElementById("info-status").textContent = event.status || "Published";
 
   if (event.creator_name) {
     const createdAt = event.created_at ? new Date(event.created_at).toLocaleDateString() : "-";
