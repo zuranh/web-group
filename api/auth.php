@@ -61,35 +61,6 @@ class Auth {
     }
 
     /**
-     * Check if user has a specific permission
-     */
-    public function hasPermission($userId, $permission) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM admin_permissions WHERE user_id = :user_id AND permission = :permission");
-        $stmt->execute([':user_id' => $userId, ':permission' => $permission]);
-        return $stmt->fetchColumn() > 0;
-    }
-
-    /**
-     * Grant permission to a user
-     */
-    public function grantPermission($userId, $permission, $grantedBy) {
-        $stmt = $this->db->prepare("INSERT IGNORE INTO admin_permissions (user_id, permission, granted_by) VALUES (:user_id, :permission, :granted_by)");
-        return $stmt->execute([
-            ':user_id' => $userId,
-            ':permission' => $permission,
-            ':granted_by' => $grantedBy
-        ]);
-    }
-
-    /**
-     * Revoke permission from a user
-     */
-    public function revokePermission($userId, $permission) {
-        $stmt = $this->db->prepare("DELETE FROM admin_permissions WHERE user_id = :user_id AND permission = :permission");
-        return $stmt->execute([':user_id' => $userId, ':permission' => $permission]);
-    }
-
-    /**
      * Update user role (only owner can do this)
      */
     public function updateUserRole($userId, $newRole) {
@@ -98,21 +69,6 @@ class Auth {
         }
         $stmt = $this->db->prepare("UPDATE users SET role = :role WHERE id = :id");
         return $stmt->execute([':role' => $newRole, ':id' => $userId]);
-    }
-
-    /**
-     * Log admin action for audit trail
-     */
-    public function logAction($adminId, $action, $targetType = null, $targetId = null, $details = null, $ipAddress = null) {
-        $stmt = $this->db->prepare("INSERT INTO admin_actions (admin_id, action, target_type, target_id, details, ip_address) VALUES (:admin_id, :action, :target_type, :target_id, :details, :ip_address)");
-        return $stmt->execute([
-            ':admin_id' => $adminId,
-            ':action' => $action,
-            ':target_type' => $targetType,
-            ':target_id' => $targetId,
-            ':details' => $details,
-            ':ip_address' => $ipAddress
-        ]);
     }
 
     /**

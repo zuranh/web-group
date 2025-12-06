@@ -212,10 +212,6 @@ if ($method === 'POST') {
         }
     }
 
-    if (method_exists($auth, 'logAction')) {
-        $auth->logAction($currentUser['id'], 'create_event', 'event', $eventId, json_encode(['name' => $input['name']]), $_SERVER['REMOTE_ADDR'] ?? null);
-    }
-
     respond(201, ['success' => true, 'event_id' => (int) $eventId, 'message' => 'Event created successfully']);
 }
 
@@ -289,10 +285,6 @@ if ($method === 'PUT') {
         }
     }
 
-    if (method_exists($auth, 'logAction')) {
-        $auth->logAction($currentUser['id'], 'update_event', 'event', $eventId, json_encode($input), $_SERVER['REMOTE_ADDR'] ?? null);
-    }
-
     respond(200, ['success' => true, 'message' => 'Event updated successfully']);
 }
 
@@ -312,10 +304,6 @@ if ($method === 'DELETE') {
 
     $db->prepare('DELETE FROM event_genres WHERE event_id = :event_id')->execute([':event_id' => $eventId]);
     $db->prepare('DELETE FROM events WHERE id = :id')->execute([':id' => $eventId]);
-
-    if (method_exists($auth, 'logAction')) {
-        $auth->logAction($currentUser['id'], 'delete_event', 'event', $eventId, json_encode(['name' => $event['name']]), $_SERVER['REMOTE_ADDR'] ?? null);
-    }
 
     respond(200, ['success' => true, 'message' => 'Event deleted successfully']);
 }
