@@ -25,7 +25,6 @@ const descInput = document.getElementById("description");
 const dateInput = document.getElementById("date");
 const timeInput = document.getElementById("time");
 const locationInput = document.getElementById("location");
-const ageInput = document.getElementById("age_restriction");
 const priceInput = document.getElementById("price");
 const latInput = document.getElementById("lat");
 const lngInput = document.getElementById("lng");
@@ -158,7 +157,6 @@ function populateForm(ev) {
   dateInput.value = normalizeDateForInput(ev.date);
   timeInput.value = ev.time || "";
   locationInput.value = ev.location || "";
-  ageInput.value = ev.age_restriction ?? "";
   priceInput.value = ev.price ?? "";
   latInput.value = ev.lat ?? "";
   lngInput.value = ev.lng ?? "";
@@ -308,7 +306,6 @@ async function handleSubmit(e) {
       date,
       time,
       location,
-      age_restriction: ageInput.value ? Number(ageInput.value) : null,
       price: priceInput.value ? Number(priceInput.value) : 0,
       lat: latInput.value || null,
       lng: lngInput.value || null,

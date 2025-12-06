@@ -107,17 +107,11 @@ function renderEvent() {
   document.getElementById("info-date").textContent = event.date || "TBA";
   document.getElementById("info-time").textContent = event.time || "TBA";
   document.getElementById("info-location").textContent = event.location || "TBA";
-    const price =
+  const price =
     event.price && parseFloat(event.price) > 0
       ? `$${parseFloat(event.price).toFixed(2)}`
       : "FREE";
   document.getElementById("info-price").textContent = price;
-
-  // Age restriction: show "All ages" only if 0, null, undefined, or empty string
-  const ageRaw = event.age_restriction;
-  const ageNum = ageRaw !== null && ageRaw !== undefined && ageRaw !== '' ? Number(ageRaw) : 0;
-  document.getElementById("info-age").textContent =
-    Number.isFinite(ageNum) && ageNum > 0 ? `${ageNum}+` : "All ages";
   document.getElementById("info-status").textContent = event.status || "Published";
 
   if (event.creator_name) {

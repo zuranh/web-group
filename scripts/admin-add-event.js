@@ -93,7 +93,6 @@ async function handleSubmit(e) {
       date: document.getElementById("date").value,
       time: document.getElementById("time").value,
       location: document.getElementById("location").value.trim(),
-      age_restriction: Number(document.getElementById("age_restriction").value || 0),
       price: Number(document.getElementById("price").value || 0),
       lat: document.getElementById("lat").value || null,
       lng: document.getElementById("lng").value || null,

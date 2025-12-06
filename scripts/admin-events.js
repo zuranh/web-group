@@ -51,7 +51,6 @@
       document.getElementById('event-date').value = ev.date || '';
       document.getElementById('event-time').value = ev.time || '';
       document.getElementById('event-location').value = ev.location || '';
-      document.getElementById('event-age').value = ev.age_restriction || '';
       document.getElementById('event-price').value = ev.price || '';
     });
 
@@ -69,7 +68,6 @@
           date: document.getElementById('event-date').value,
           time: document.getElementById('event-time').value,
           location: document.getElementById('event-location').value,
-          age_restriction: document.getElementById('event-age').value,
           price: document.getElementById('event-price').value
         };
         const secret = await promptSecret(); if (!secret) { alert('Admin secret required'); return; }

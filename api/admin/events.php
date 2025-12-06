@@ -97,7 +97,6 @@ function ensureEventsSchema(PDO $db): void
             `lng` DOUBLE,
             `date` DATE,
             `time` TIME,
-            `age_restriction` INT,
             `price` DECIMAL(10,2) DEFAULT 0.00,
             `image_url` VARCHAR(500),
             `status` ENUM('draft','published','archived') DEFAULT 'published',
@@ -121,7 +120,6 @@ function ensureEventsSchema(PDO $db): void
         'genre_id' => 'ADD COLUMN `genre_id` INT NULL',
         'image_url' => 'ADD COLUMN `image_url` VARCHAR(500) NULL',
         'price' => 'ADD COLUMN `price` DECIMAL(10,2) DEFAULT 0.00',
-        'age_restriction' => 'ADD COLUMN `age_restriction` INT NULL',
         'lat' => 'ADD COLUMN `lat` DOUBLE NULL',
         'lng' => 'ADD COLUMN `lng` DOUBLE NULL',
     ];
@@ -180,9 +178,9 @@ if ($method === 'POST') {
 
     $stmt = $db->prepare(
         "INSERT INTO events
-            (name, description, location, lat, lng, date, time, age_restriction, price, image_url, status, genre_id, owner_id, capacity, available_spots)
+            (name, description, location, lat, lng, date, time, price, image_url, status, genre_id, owner_id, capacity, available_spots)
          VALUES
-            (:name, :description, :location, :lat, :lng, :date, :time, :age_restriction, :price, :image_url, :status, :genre_id, :owner_id, :capacity, :available_spots)"
+            (:name, :description, :location, :lat, :lng, :date, :time, :price, :image_url, :status, :genre_id, :owner_id, :capacity, :available_spots)"
     );
 
     $stmt->execute([
@@ -193,7 +191,6 @@ if ($method === 'POST') {
         ':lng' => sanitizeFloat($input['lng'] ?? null),
         ':date' => $input['date'],
         ':time' => $input['time'],
-        ':age_restriction' => sanitizeInt($input['age_restriction'] ?? null),
         ':price' => sanitizeFloat($input['price'] ?? 0),
         ':image_url' => $input['image_url'] ?? null,
         ':status' => $status,
@@ -249,7 +246,6 @@ if ($method === 'PUT') {
             lng = :lng,
             date = :date,
             time = :time,
-            age_restriction = :age_restriction,
             price = :price,
             image_url = :image_url,
             status = :status,
@@ -267,7 +263,6 @@ if ($method === 'PUT') {
         ':lng' => array_key_exists('lng', $input) ? sanitizeFloat($input['lng']) : $existing['lng'],
         ':date' => $input['date'] ?? $existing['date'],
         ':time' => $input['time'] ?? $existing['time'],
-        ':age_restriction' => array_key_exists('age_restriction', $input) ? sanitizeInt($input['age_restriction']) : $existing['age_restriction'],
         ':price' => array_key_exists('price', $input) ? sanitizeFloat($input['price']) : $existing['price'],
         ':image_url' => array_key_exists('image_url', $input) ? $input['image_url'] : $existing['image_url'],
         ':status' => $status,

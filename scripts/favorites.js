@@ -115,10 +115,9 @@ function renderFavorites() {
                     <div class="favorite-info">
                         <h3>${event.title}</h3>
 
-                        <p class="event-details">
+                            <p class="event-details">
                             📍 ${event.location || "Location TBA"}<br>
                             📅 ${event.date || "Date TBA"} ${event.time ? "• 🕐 " + event.time : ""}<br>
-                            ${event.age_restriction ? `🔞 ${event.age_restriction}+ • ` : ""}
                         </p>
 
                         <span class="event-price">${price}</span>
