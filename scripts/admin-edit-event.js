@@ -90,6 +90,11 @@ function renderEventsGrid() {
   eventsGrid.innerHTML = "";
 
   if (!events.length) {
+    selectedEventId = null;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("id");
+    window.history.replaceState({}, "", url);
+
     noEvents.style.display = "block";
     editFormSection.classList.remove("active");
     return;
@@ -231,6 +236,10 @@ async function selectEvent(eventId) {
   if (!match) return;
 
   selectedEventId = Number(eventId);
+  const url = new URL(window.location.href);
+  url.searchParams.set("id", selectedEventId);
+  window.history.replaceState({}, "", url);
+
   renderEventsGrid();
   populateForm(match);
   showAlert("");
