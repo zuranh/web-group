@@ -16,52 +16,6 @@ body {
 
 
 /* ========================= */
-/*           NAVBAR          */
-/* ========================= */
-
-#navbar {
-    background: #ffffff;
-    padding: 20px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-#navbar h1 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
-
-#navbar ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-}
-
-#navbar a {
-    text-decoration: none;
-    color: #333;
-    font-size: 16px;
-    padding-bottom: 3px;
-    transition: 0.3s;
-}
-
-#navbar a:hover {
-    color: #0077ff;
-}
-
-#navbar a.active {
-    border-bottom: 2px solid #0077ff;
-    color: #0077ff;
-}
-
-
-/* ========================= */
 /*       PROFILE HEADER      */
 /* ========================= */
 

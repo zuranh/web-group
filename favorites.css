@@ -17,46 +17,6 @@ body {
 }
 
 /* ========================== */
-/*        HEADER / NAVBAR      */
-/* ========================== */
-header#navbar {
-    width: 100%;
-    background: #0056b3;
-    color: #fff;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-header#navbar .tm-logo a {
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
-header#navbar .tm-links a {
-    margin-left: 2rem;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-header#navbar .tm-links a.active {
-    text-decoration: underline;
-}
-
-header#navbar .tm-links a:hover {
-    color: #ffd700;
-}
-
-/* ========================== */
 /*      FAVORITES HEADER       */
 /* ========================== */
 #favorites-header {

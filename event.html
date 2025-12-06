@@ -8,6 +8,7 @@
       content="Event details and registration page for Event Finder."
     />
     <meta name="author" content="Event Finder Team" />
+    <link rel="stylesheet" href="index.css" />
     <link rel="stylesheet" href="event.css" />
     <title>Event Details | Event Finder</title>
       </head>
@@ -15,17 +16,30 @@
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <!-- HEADER -->
-    <header id="navbar">
-      <div class="tm-logo">
-        <a href="index.html">EventFinder</a>
+    <header class="tm-navbar">
+      <div class="tm-nav-content">
+        <div class="tm-logo">
+          <a href="index.html">EventFinder</a>
+        </div>
+        <nav class="tm-links">
+          <a href="index.html">Home</a>
+          <a href="favorites.html" id="favorites-link" style="display: none">Favorites</a>
+          <a href="registrations.html" id="registrations-link" style="display: none">Registrations</a>
+          <a href="account.html" id="profile-link" style="display: none">Account</a>
+          <a href="admin.html" id="admin-link" style="display: none">Admin</a>
+        </nav>
+        <div class="tm-search">
+          <input type="text" id="header-search" placeholder="Search events..." />
+          <button id="header-search-btn"><span>Search</span></button>
+        </div>
+        <div class="tm-auth">
+          <a href="login.html" class="tm-login-btn" id="login-btn">Login</a>
+          <div class="user-menu" id="user-menu" style="display: none">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="admin-badge" id="admin-badge" style="display: none">ADMIN</div>
+          </div>
+        </div>
       </div>
-      <nav class="tm-links">
-        <a href="index.html">Home</a>
-        <a href="favorites.html" id="favorites-link">Favorites</a>
-        <a href="registrations.html" id="registrations-link" style="display: none">Registrations</a>
-        <a href="profile.html" id="profile-link">Profile</a>
-        <a href="admin.html" id="admin-link" style="display: none">Admin</a>
-      </nav>
     </header>
 
     <!-- Loading State -->

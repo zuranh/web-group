@@ -47,6 +47,38 @@ function showProfile(userData, fallbackEmail) {
   }
 }
 
+function syncNavbar(userData) {
+  const loginBtn = document.getElementById("login-btn");
+  const userMenu = document.getElementById("user-menu");
+
+  if (loginBtn && userMenu) {
+    loginBtn.style.display = "none";
+    userMenu.style.display = "block";
+    const avatar = document.getElementById("user-avatar");
+    if (avatar) {
+      avatar.textContent = userData?.name
+        ? userData.name.charAt(0).toUpperCase()
+        : "U";
+    }
+  }
+
+  const favoritesLink = document.getElementById("favorites-link");
+  if (favoritesLink) favoritesLink.style.display = "block";
+
+  const registrationsLink = document.getElementById("registrations-link");
+  if (registrationsLink) registrationsLink.style.display = "block";
+
+  const profileLink = document.getElementById("profile-link");
+  if (profileLink) profileLink.style.display = "block";
+
+  if (userData && ["admin", "owner"].includes(userData.role)) {
+    const adminLink = document.getElementById("admin-link");
+    const adminBadge = document.getElementById("admin-badge");
+    if (adminLink) adminLink.style.display = "block";
+    if (adminBadge) adminBadge.style.display = "block";
+  }
+}
+
 function showAdminStuff(role) {
   const adminLink = document.getElementById("admin-link");
   if (!adminLink) return;
@@ -78,6 +110,7 @@ async function loadProfile(user) {
     }
 
     const userData = data.user;
+    syncNavbar(userData);
     showProfile(userData, user.email);
     showAdminStuff(userData.role || null);
   } catch (err) {
