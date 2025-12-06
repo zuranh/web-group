@@ -68,6 +68,17 @@ function getEventIdFromUrl() {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+function normalizeDateForInput(dateStr) {
+  if (!dateStr) return "";
+
+  const normalized = dateStr.slice(0, 10);
+  const isValidFormat = /^\d{4}-\d{2}-\d{2}$/.test(normalized);
+  if (!isValidFormat || normalized === "0000-00-00") return "";
+
+  const date = new Date(`${normalized}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? "" : normalized;
+}
+
 async function ensureAdmin(user) {
   const idToken = await user.getIdToken();
   const res = await fetch("api/me.php", {
@@ -144,7 +155,7 @@ function setGenresSelection(selected) {
 function populateForm(ev) {
   titleInput.value = ev.name || "";
   descInput.value = ev.description || "";
-  dateInput.value = ev.date || "";
+  dateInput.value = normalizeDateForInput(ev.date);
   timeInput.value = ev.time || "";
   locationInput.value = ev.location || "";
   ageInput.value = ev.age_restriction ?? "";
