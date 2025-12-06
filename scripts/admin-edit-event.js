@@ -63,7 +63,9 @@ function updatePreview(url) {
 
 function getEventIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("id");
+  const raw = params.get("id");
+  const parsed = raw ? Number(raw) : null;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
 async function ensureAdmin(user) {
@@ -199,9 +201,14 @@ async function loadEvents() {
   renderEventsGrid();
 
   const fromUrl = getEventIdFromUrl();
-  const initialId = fromUrl ? Number(fromUrl) : events[0]?.id;
-  if (initialId) {
-    selectEvent(initialId);
+  const matched = fromUrl ? events.find((e) => e.id === fromUrl) : null;
+
+  if (matched) {
+    selectEvent(matched.id);
+  } else if (events[0]) {
+    selectEvent(events[0].id);
+  } else {
+    showAlert("No events available to edit. Create one first.", "info");
   }
 }
 
@@ -233,7 +240,13 @@ async function uploadImageFile(file) {
 
 async function selectEvent(eventId) {
   const match = events.find((e) => e.id === Number(eventId));
-  if (!match) return;
+  if (!match) {
+    showAlert("Missing ?id= in URL for event. Showing the first available event.", "info");
+    if (events[0]) {
+      return selectEvent(events[0].id);
+    }
+    return;
+  }
 
   selectedEventId = Number(eventId);
   const url = new URL(window.location.href);
