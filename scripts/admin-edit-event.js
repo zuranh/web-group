@@ -18,6 +18,7 @@ const editFormSection = document.getElementById("edit-form");
 const editSubtitle = document.getElementById("edit-subtitle");
 const form = document.getElementById("edit-event-form");
 const submitBtn = document.getElementById("submit-btn");
+const deleteBtn = document.getElementById("delete-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 
 const titleInput = document.getElementById("title");
@@ -46,6 +47,12 @@ function toggleSubmit(disabled) {
   if (!submitBtn) return;
   submitBtn.disabled = disabled;
   submitBtn.textContent = disabled ? "Saving..." : "Save Changes";
+}
+
+function toggleDelete(disabled) {
+  if (!deleteBtn) return;
+  deleteBtn.disabled = disabled;
+  deleteBtn.textContent = disabled ? "Deleting..." : "Delete Event";
 }
 
 function updatePreview(url) {
@@ -334,6 +341,47 @@ function handleCancel() {
   }
 }
 
+async function handleDelete() {
+  if (!selectedEventId) {
+    showAlert("Select an event to delete.", "error");
+    return;
+  }
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this event? This cannot be undone."
+  );
+  if (!confirmDelete) return;
+
+  toggleDelete(true);
+  if (submitBtn) submitBtn.disabled = true;
+  if (cancelBtn) cancelBtn.disabled = true;
+
+  try {
+    const res = await fetch(`api/admin/events.php?id=${selectedEventId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${await currentUser.getIdToken()}`,
+        "X-Firebase-UID": currentUser.uid,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.success === false) {
+      throw new Error(data.error || "Delete failed");
+    }
+
+    showAlert("Event deleted successfully.", "success");
+    await loadEvents();
+  } catch (err) {
+    console.error("Delete event error:", err);
+    showAlert(err.message, "error");
+  } finally {
+    toggleDelete(false);
+    if (submitBtn) submitBtn.disabled = false;
+    if (cancelBtn) cancelBtn.disabled = false;
+  }
+}
+
 // ---------- init ----------
 function init() {
   onAuthStateChanged(auth, async (user) => {
@@ -356,6 +404,7 @@ function init() {
 
   if (form) form.addEventListener("submit", handleSubmit);
   if (cancelBtn) cancelBtn.addEventListener("click", handleCancel);
+  if (deleteBtn) deleteBtn.addEventListener("click", handleDelete);
   if (imageFileInput) {
     imageFileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
