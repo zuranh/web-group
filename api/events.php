@@ -156,11 +156,13 @@ try {
         foreach ($events as $e) {
             if (isset($e['lat']) && isset($e['lng']) && $e['lat'] !== null && $e['lng'] !== null) {
                 $d = distance_km($lat, $lng, floatval($e['lat']), floatval($e['lng']));
-                if ($d <= $radius) {
-                    $e['distance_km'] = round($d, 2);
-                    $filtered[] = $e;
+                if ($d > $radius) {
+                    continue; // skip events outside the requested radius
                 }
+                $e['distance_km'] = round($d, 2);
             }
+            // Keep events without coordinates so geolocation doesn't hide everything
+            $filtered[] = $e;
         }
         $events = $filtered;
         $total = count($filtered);
