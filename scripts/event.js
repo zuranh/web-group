@@ -90,10 +90,18 @@ function renderEvent() {
   const genresContainer = document.getElementById("event-genres");
   genresContainer.innerHTML = "";
   if (Array.isArray(event.genres) && event.genres.length) {
-    event.genres.forEach((gName) => {
+    event.genres.forEach((genre) => {
       const badge = document.createElement("span");
       badge.className = "genre-badge";
-      badge.textContent = gName;
+      const label =
+        typeof genre === "string"
+          ? genre
+          : genre && typeof genre.name === "string"
+          ? genre.name
+          : "";
+
+      if (!label) return;
+      badge.textContent = label;
       genresContainer.appendChild(badge);
     });
   } else if (event.genre_name) {
