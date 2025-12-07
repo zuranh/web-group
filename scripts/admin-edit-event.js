@@ -27,8 +27,6 @@ const dateInput = document.getElementById("date");
 const timeInput = document.getElementById("time");
 const locationInput = document.getElementById("location");
 const priceInput = document.getElementById("price");
-const latInput = document.getElementById("lat");
-const lngInput = document.getElementById("lng");
 const genreSelection = document.getElementById("genre-selection");
 
 const imageFileInput = document.getElementById("image_file");
@@ -156,8 +154,6 @@ function populateForm(ev) {
   timeInput.value = ev.time || "";
   locationInput.value = ev.location || "";
   priceInput.value = ev.price ?? "";
-  latInput.value = ev.lat ?? "";
-  lngInput.value = ev.lng ?? "";
   // Only primary genre is available from API, so preselect that one
   const selectedGenres = ev.genre_id ? [Number(ev.genre_id)] : [];
   setGenresSelection(selectedGenres);
@@ -303,8 +299,6 @@ async function handleSubmit(e) {
       time,
       location,
       price: priceInput.value ? Number(priceInput.value) : 0,
-      lat: latInput.value || null,
-      lng: lngInput.value || null,
       genres: genresSelected,
       image_url: imageUrl,
     };

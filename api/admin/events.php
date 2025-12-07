@@ -176,17 +176,15 @@ if ($method === 'POST') {
 
     $stmt = $db->prepare(
         "INSERT INTO events
-            (name, description, location, lat, lng, date, time, price, image_url, genre_id, owner_id, capacity, available_spots)
+            (name, description, location, date, time, price, image_url, genre_id, owner_id, capacity, available_spots)
          VALUES
-            (:name, :description, :location, :lat, :lng, :date, :time, :price, :image_url, :genre_id, :owner_id, :capacity, :available_spots)"
+            (:name, :description, :location, :date, :time, :price, :image_url, :genre_id, :owner_id, :capacity, :available_spots)"
     );
 
     $stmt->execute([
         ':name' => $input['name'],
         ':description' => $input['description'],
         ':location' => $input['location'],
-        ':lat' => sanitizeFloat($input['lat'] ?? null),
-        ':lng' => sanitizeFloat($input['lng'] ?? null),
         ':date' => $input['date'],
         ':time' => $input['time'],
         ':price' => sanitizeFloat($input['price'] ?? 0),
@@ -234,8 +232,6 @@ if ($method === 'PUT') {
             name = :name,
             description = :description,
             location = :location,
-            lat = :lat,
-            lng = :lng,
             date = :date,
             time = :time,
             price = :price,
@@ -251,8 +247,6 @@ if ($method === 'PUT') {
         ':name' => $input['name'] ?? $existing['name'],
         ':description' => $input['description'] ?? $existing['description'],
         ':location' => $input['location'] ?? $existing['location'],
-        ':lat' => array_key_exists('lat', $input) ? sanitizeFloat($input['lat']) : $existing['lat'],
-        ':lng' => array_key_exists('lng', $input) ? sanitizeFloat($input['lng']) : $existing['lng'],
         ':date' => $input['date'] ?? $existing['date'],
         ':time' => $input['time'] ?? $existing['time'],
         ':price' => array_key_exists('price', $input) ? sanitizeFloat($input['price']) : $existing['price'],

@@ -94,8 +94,6 @@ async function handleSubmit(e) {
       time: document.getElementById("time").value,
       location: document.getElementById("location").value.trim(),
       price: Number(document.getElementById("price").value || 0),
-      lat: document.getElementById("lat").value || null,
-      lng: document.getElementById("lng").value || null,
       genres: Array.from(document.querySelectorAll('input[name="genres[]"]:checked')).map(cb => Number(cb.value)),
     };
 
