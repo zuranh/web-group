@@ -232,14 +232,14 @@ async function loadEvents() {
     const date = document.getElementById("filter-date")?.value;
     if (date) params.append("date", date);
 
-    const location = document.getElementById("filter-location")?.value;
+    const location = document.getElementById("filter-location")?.value?.trim();
     if (location) params.append("location", location);
 
     const radius = document.getElementById("filter-radius")?.value;
     if (radius) params.append("radius", radius);
 
     const price = document.getElementById("filter-price")?.value;
-    if (price) params.append("max_price", price);
+    if (price) params.append("price_max", price);
 
     const sort = document.getElementById("filter-sort")?.value;
     if (sort) params.append("sort", sort);

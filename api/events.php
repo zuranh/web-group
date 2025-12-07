@@ -55,14 +55,14 @@ try {
     $params = [];
 
     if (!empty($_GET['search'])) {
-        $where[] = "(e.name LIKE :search OR e.location LIKE :search OR e.description LIKE :search)";
-        $params[':search'] = '%' . $_GET['search'] . '%';
+        $where[] = "(LOWER(e.name) LIKE :search OR LOWER(e.location) LIKE :search OR LOWER(e.description) LIKE :search)";
+        $params[':search'] = '%' . strtolower(trim($_GET['search'])) . '%';
     }
 
-    // Location text filter (partial match)
+    // Location text filter (partial, case-insensitive match)
     if (!empty($_GET['location'])) {
-        $where[] = "e.location LIKE :location";
-        $params[':location'] = '%' . $_GET['location'] . '%';
+        $where[] = "LOWER(e.location) LIKE :location";
+        $params[':location'] = '%' . strtolower(trim($_GET['location'])) . '%';
     }
 
     // Genre filter against many-to-many map
