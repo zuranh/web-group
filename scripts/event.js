@@ -16,6 +16,7 @@ let currentUser = null;
 let currentEvent = null;
 let isFavorited = false;
 let registrationStatus = "unknown";
+let favoriteBtnEl = null;
 
 window.addEventListener("DOMContentLoaded", async () => {
   fbOnAuthStateChanged(auth, async (firebaseUser) => {
@@ -159,7 +160,8 @@ function renderEvent() {
 
   const favoriteBtn = document.getElementById("favorite-btn");
   favoriteBtn.replaceWith(favoriteBtn.cloneNode(true));
-  document.getElementById("favorite-btn").addEventListener("click", toggleFavorite);
+  favoriteBtnEl = document.getElementById("favorite-btn");
+  favoriteBtnEl.addEventListener("click", toggleFavorite);
 
   updateRegisterButton();
 
@@ -194,14 +196,16 @@ async function checkIfFavorited() {
 }
 
 function updateFavoriteButton() {
-  const btn = document.getElementById("favorite-btn");
-  if (!btn) return;
+  if (!favoriteBtnEl) return;
+  favoriteBtnEl.disabled = false;
+  favoriteBtnEl.classList.remove("loading");
+
   if (isFavorited) {
-    btn.textContent = "❤️ Favorited";
-    btn.classList.add("favorited");
+    favoriteBtnEl.textContent = "❤️ Favorited";
+    favoriteBtnEl.classList.add("favorited");
   } else {
-    btn.textContent = "♡ Add to Favorites";
-    btn.classList.remove("favorited");
+    favoriteBtnEl.textContent = "♡ Add to Favorites";
+    favoriteBtnEl.classList.remove("favorited");
   }
 }
 
@@ -211,6 +215,14 @@ async function toggleFavorite() {
     window.location.href = "/web-proj/login.html";
     return;
   }
+
+  if (!favoriteBtnEl) {
+    return;
+  }
+
+  favoriteBtnEl.disabled = true;
+  favoriteBtnEl.classList.add("loading");
+  favoriteBtnEl.textContent = isFavorited ? "Removing..." : "Adding...";
 
   const firebaseUser = auth.currentUser;
 
@@ -238,6 +250,8 @@ async function toggleFavorite() {
   } catch (error) {
     console.error("Failed to toggle favorite:", error);
     alert("Failed to update favorite");
+  } finally {
+    updateFavoriteButton();
   }
 }
 
