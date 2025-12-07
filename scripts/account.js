@@ -13,6 +13,8 @@ function showProfile(userData, fallbackEmail) {
   const userNameEl = document.getElementById("user-name");
   const userEmailEl = document.getElementById("user-email");
   const userAgeEl = document.getElementById("user-age");
+  const userPhoneEl = document.getElementById("user-phone");
+  const userLocationEl = document.getElementById("user-location");
   const userJoinedEl = document.getElementById("user-joined");
 
   if (userNameEl) userNameEl.textContent = userData.name || "N/A";
@@ -27,6 +29,14 @@ function showProfile(userData, fallbackEmail) {
     }
   }
 
+  if (userPhoneEl) {
+    userPhoneEl.textContent = userData.phone || "N/A";
+  }
+
+  if (userLocationEl) {
+    userLocationEl.textContent = userData.location || "N/A";
+  }
+
   if (userJoinedEl) {
     if (userData.joined_at) {
       const d = new Date(userData.joined_at);
@@ -34,6 +44,38 @@ function showProfile(userData, fallbackEmail) {
     } else {
       userJoinedEl.textContent = "N/A";
     }
+  }
+}
+
+function syncNavbar(userData) {
+  const loginBtn = document.getElementById("login-btn");
+  const userMenu = document.getElementById("user-menu");
+
+  if (loginBtn && userMenu) {
+    loginBtn.style.display = "none";
+    userMenu.style.display = "block";
+    const avatar = document.getElementById("user-avatar");
+    if (avatar) {
+      avatar.textContent = userData?.name
+        ? userData.name.charAt(0).toUpperCase()
+        : "U";
+    }
+  }
+
+  const favoritesLink = document.getElementById("favorites-link");
+  if (favoritesLink) favoritesLink.style.display = "block";
+
+  const registrationsLink = document.getElementById("registrations-link");
+  if (registrationsLink) registrationsLink.style.display = "block";
+
+  const profileLink = document.getElementById("profile-link");
+  if (profileLink) profileLink.style.display = "block";
+
+  if (userData && ["admin", "owner"].includes(userData.role)) {
+    const adminLink = document.getElementById("admin-link");
+    const adminBadge = document.getElementById("admin-badge");
+    if (adminLink) adminLink.style.display = "block";
+    if (adminBadge) adminBadge.style.display = "block";
   }
 }
 
@@ -68,6 +110,7 @@ async function loadProfile(user) {
     }
 
     const userData = data.user;
+    syncNavbar(userData);
     showProfile(userData, user.email);
     showAdminStuff(userData.role || null);
   } catch (err) {
@@ -138,7 +181,8 @@ function initAccountPage() {
   const changePasswordBtn = document.getElementById("change-password-btn");
   const logoutBtn = document.getElementById("logout-btn");
   const deleteAccountBtn = document.getElementById("delete-account-btn");
-  const notificationBtn = document.getElementById("notification-settings-btn");
+  const registeredEventsBtn = document.getElementById("registered-events-btn");
+  const favoriteEventsBtn = document.getElementById("favorite-events-btn");
 
   if (editProfileBtn) {
     editProfileBtn.addEventListener("click", () => {
@@ -170,11 +214,15 @@ function initAccountPage() {
     deleteAccountBtn.addEventListener("click", handleDeleteAccount);
   }
 
-  if (notificationBtn) {
-    notificationBtn.addEventListener("click", () => {
-      alert(
-        "Notification settings are not implemented yet. You can mention this as a future enhancement in your report."
-      );
+  if (registeredEventsBtn) {
+    registeredEventsBtn.addEventListener("click", () => {
+      window.location.href = "registrations.html";
+    });
+  }
+
+  if (favoriteEventsBtn) {
+    favoriteEventsBtn.addEventListener("click", () => {
+      window.location.href = "favorites.html";
     });
   }
 }

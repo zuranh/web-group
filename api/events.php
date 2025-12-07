@@ -20,13 +20,13 @@ function distance_km($lat1, $lon1, $lat2, $lon2) {
 try {
     $db = require __DIR__ . '/db.php';
 
-    // Single event fetch (ensure published)
+    // Single event fetch
     if (isset($_GET['id'])) {
         $stmt = $db->prepare('
             SELECT e.*, u.name AS owner_name
             FROM events e
             LEFT JOIN users u ON e.owner_id = u.id
-            WHERE e.id = :id AND e.status = "published"
+            WHERE e.id = :id
         ');
         $stmt->execute([':id' => $_GET['id']]);
         $event = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -51,7 +51,7 @@ try {
         exit;
     }
 
-    $where = ["e.status = 'published'"];
+    $where = ["1=1"];
     $params = [];
 
     if (!empty($_GET['search'])) {
@@ -81,6 +81,11 @@ try {
         $where[] = "e.date <= :date_to";
         $params[':date_to'] = $_GET['date_to'];
     }
+    
+    if (! empty($_GET['location'])) {
+    $where[] = "e.location LIKE :location";
+    $params[':location'] = '%' . $_GET['location'] . '%';
+}
 
     if (isset($_GET['price_min'])) {
         $where[] = "e.price >= :price_min";
@@ -156,11 +161,13 @@ try {
         foreach ($events as $e) {
             if (isset($e['lat']) && isset($e['lng']) && $e['lat'] !== null && $e['lng'] !== null) {
                 $d = distance_km($lat, $lng, floatval($e['lat']), floatval($e['lng']));
-                if ($d <= $radius) {
-                    $e['distance_km'] = round($d, 2);
-                    $filtered[] = $e;
+                if ($d > $radius) {
+                    continue; // skip events outside the requested radius
                 }
+                $e['distance_km'] = round($d, 2);
             }
+            // Keep events without coordinates so geolocation doesn't hide everything
+            $filtered[] = $e;
         }
         $events = $filtered;
         $total = count($filtered);

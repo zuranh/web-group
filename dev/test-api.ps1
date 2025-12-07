@@ -46,7 +46,7 @@ try {
 
 try {
   Write-Host "\n4) Create event (admin)"
-  $createPayload = @{ title='PS Test Event'; description='Created by PS script'; location='Script Park'; lat=51.5074; lng=-0.1278; date='2025-12-01'; time='19:00'; age_restriction=0; price=0 }
+  $createPayload = @{ title='PS Test Event'; description='Created by PS script'; location='Script Park'; lat=51.5074; lng=-0.1278; date='2025-12-01'; time='19:00'; price=0 }
   $create = Invoke-RestMethod -Method Post -Uri "$base/api/events.php" -Headers $headers -Body (ConvertTo-Json $createPayload) -ContentType 'application/json' -WebSession $session
   Write-Host (Pretty $create)
   $createdId = $create.id

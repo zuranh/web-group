@@ -1,4 +1,4 @@
-import { auth } from "/web-proj/firebase-config.js";
+import { auth } from "/web-proj1/firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 let allEvents = [];
@@ -27,7 +27,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 async function loadCurrentUser(firebaseUser) {
   try {
-    const response = await fetch("/web-proj/api/me.php", {
+    const response = await fetch("/web-proj1/api/me.php", {
       headers: { "X-Firebase-UID": firebaseUser.uid },
     });
     const data = await response.json();
@@ -145,8 +145,7 @@ function createEventCard(event) {
       : "FREE";
   const isFavorited = userFavorites.includes(Number(event.id));
   const imageUrl =
-    event.image_url ||
-    "https://placehold.co/400x200/667eea/white?text=Event";
+    event.image_url || "https://placehold.co/400x200/667eea/white?text=Event";
 
   // build DOM safely (no innerHTML with emojis)
   const preview = document.createElement("div");
@@ -197,9 +196,7 @@ function createEventCard(event) {
   if (isFavorited) favBtn.classList.add("favorited");
   favBtn.dataset.id = event.id;
   favBtn.disabled = !currentUser;
-  favBtn.textContent = isFavorited
-    ? "❤️ Favorited"
-    : "♡ Add to Favorites";
+  favBtn.textContent = isFavorited ? "❤️ Favorited" : "♡ Add to Favorites";
   favBtn.addEventListener("click", () => window.toggleFavorite(event.id));
 
   actionsDiv.appendChild(detailsBtn);
@@ -223,23 +220,28 @@ function createEventCard(event) {
 // Load events (with filters)
 async function loadEvents() {
   const container = document.getElementById("events-container");
-  container.innerHTML = '<div class="loading-spinner"><p>⏳ Loading events...</p></div>';
+  container.innerHTML =
+    '<div class="loading-spinner"><p>⏳ Loading events...</p></div>';
 
   try {
     const params = new URLSearchParams();
     if (selectedGenre) params.append("genre", selectedGenre);
 
     const date = document.getElementById("filter-date")?.value;
-    if (date) params.append("date", date);
+    if (date) {
+      params.append("date_from", date); // Changed from "date"
+      params.append("date_to", date); // Add this for single-day filtering
+    }
 
     const location = document.getElementById("filter-location")?.value;
-    if (location) params.append("location", location);
+    // Location filtering isn't implemented in backend, so skip for now
+    // if (location) params.append("location", location);
 
     const radius = document.getElementById("filter-radius")?.value;
     if (radius) params.append("radius", radius);
 
     const price = document.getElementById("filter-price")?.value;
-    if (price) params.append("max_price", price);
+    if (price) params.append("price_max", price); // Changed from "max_price"
 
     const sort = document.getElementById("filter-sort")?.value;
     if (sort) params.append("sort", sort);
@@ -249,7 +251,9 @@ async function loadEvents() {
       params.append("lng", userLocation.lng);
     }
 
-    const response = await fetch(`/web-proj/api/events.php?${params.toString()}`);
+    const response = await fetch(
+      `/web-proj1/api/events.php?${params.toString()}`
+    );
     const data = await response.json();
 
     if (data.success) {
@@ -285,7 +289,7 @@ function renderEvents() {
 async function loadFavorites() {
   try {
     const firebaseUser = auth.currentUser;
-    const response = await fetch("/web-proj/api/favorites.php", {
+    const response = await fetch("/web-proj1/api/favorites.php", {
       headers: { "X-Firebase-UID": firebaseUser.uid },
     });
     const data = await response.json();
@@ -312,7 +316,7 @@ window.toggleFavorite = async function (eventId) {
   try {
     const firebaseUser = auth.currentUser;
     const resp = await fetch(
-      "/web-proj/api/favorites.php" + (isFavorited ? `?event_id=${fid}` : ""),
+      "/web-proj1/api/favorites.php" + (isFavorited ? `?event_id=${fid}` : ""),
       {
         method: isFavorited ? "DELETE" : "POST",
         headers: {
@@ -326,7 +330,8 @@ window.toggleFavorite = async function (eventId) {
     console.log("toggleFavorite response", resp.status, data);
     if (!resp.ok || !data.success) {
       // revert
-      if (!isFavorited) userFavorites = userFavorites.filter((id) => id !== fid);
+      if (!isFavorited)
+        userFavorites = userFavorites.filter((id) => id !== fid);
       else userFavorites.push(fid);
       renderEvents();
       alert("Failed to update favorite: " + (data.error || resp.status));
@@ -343,7 +348,7 @@ window.toggleFavorite = async function (eventId) {
 
 // View event details
 window.viewEventDetails = function (eventId) {
-  window.location.href = `/web-proj/event.html?id=${eventId}`;
+  window.location.href = `/web-proj1/event.html?id=${eventId}`;
 };
 
 // Geolocation
@@ -380,9 +385,7 @@ function searchEvents() {
       (event.name || event.title || "")
         .toLowerCase()
         .includes(query.toLowerCase()) ||
-      (event.description || "")
-        .toLowerCase()
-        .includes(query.toLowerCase()) ||
+      (event.description || "").toLowerCase().includes(query.toLowerCase()) ||
       (event.location || "").toLowerCase().includes(query.toLowerCase())
   );
 
@@ -399,7 +402,9 @@ function searchEvents() {
 
 // Setup event listeners
 function setupEventListeners() {
-  document.getElementById("search-btn")?.addEventListener("click", searchEvents);
+  document
+    .getElementById("search-btn")
+    ?.addEventListener("click", searchEvents);
   document
     .getElementById("header-search-btn")
     ?.addEventListener("click", searchEvents);
@@ -419,9 +424,7 @@ function setupEventListeners() {
       const open = panel.classList.contains("expanded");
       panel.classList.toggle("expanded", !open);
       panel.classList.toggle("collapsed", open);
-      toggleBtn.innerText = open
-        ? "Advanced Filters ▾"
-        : "Advanced Filters ▴";
+      toggleBtn.innerText = open ? "Advanced Filters ▾" : "Advanced Filters ▴";
       toggleBtn.setAttribute("aria-expanded", (!open).toString());
     });
   }
@@ -431,15 +434,19 @@ function setupEventListeners() {
     applyFilters();
   });
 
-  document.getElementById("clear-filters-btn")?.addEventListener("click", () => {
-    const form = document.getElementById("filter-form");
-    if (form) form.reset();
-    selectedGenre = "";
-    document
-      .querySelectorAll(".genre-chip")
-      .forEach((ch) => ch.classList.toggle("active", ch.dataset.genre === ""));
-    loadEvents();
-  });
+  document
+    .getElementById("clear-filters-btn")
+    ?.addEventListener("click", () => {
+      const form = document.getElementById("filter-form");
+      if (form) form.reset();
+      selectedGenre = "";
+      document
+        .querySelectorAll(".genre-chip")
+        .forEach((ch) =>
+          ch.classList.toggle("active", ch.dataset.genre === "")
+        );
+      loadEvents();
+    });
 
   const genreSelect = document.getElementById("genreFilter");
   if (genreSelect) {

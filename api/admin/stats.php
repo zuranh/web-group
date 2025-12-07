@@ -48,22 +48,6 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
-    $db->exec(
-        "CREATE TABLE IF NOT EXISTS `admin_actions` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
-            `admin_id` INT NOT NULL,
-            `action` VARCHAR(100) NOT NULL,
-            `target_type` VARCHAR(50),
-            `target_id` INT,
-            `details` TEXT,
-            `ip_address` VARCHAR(45),
-            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX `idx_admin` (`admin_id`),
-            INDEX `idx_created` (`created_at`),
-            CONSTRAINT `fk_actions_admin` FOREIGN KEY (`admin_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
-    );
-
     $counts = [
         'events' => (int) $db->query('SELECT COUNT(*) FROM events')->fetchColumn(),
         'users' => (int) $db->query('SELECT COUNT(*) FROM users')->fetchColumn(),
@@ -72,7 +56,7 @@ try {
     ];
 
     $upcomingStmt = $db->query(
-        "SELECT COUNT(*) FROM events WHERE (status IS NULL OR status NOT IN ('archived')) AND (date IS NULL OR date >= CURDATE())"
+        "SELECT COUNT(*) FROM events WHERE (date IS NULL OR date >= CURDATE())"
     );
     $counts['upcoming'] = (int) $upcomingStmt->fetchColumn();
 
@@ -109,7 +93,7 @@ try {
 
     $recentEvents = $db
         ->query(
-            "SELECT e.id, e.title, e.status, e.date, u.name AS creator_name
+            "SELECT e.id, e.title, e.date, u.name AS creator_name
              FROM events e
              LEFT JOIN users u ON u.id = e.created_by
              ORDER BY e.created_at DESC
@@ -117,27 +101,12 @@ try {
         )
         ->fetchAll();
 
-    $recentActions = [];
-    if ($auth->isOwner($currentUser)) {
-        $recentActions = $db
-            ->query(
-                "SELECT a.id, a.action, a.target_type, a.target_id, a.details, a.created_at,
-                        admin.name AS admin_name
-                 FROM admin_actions a
-                 LEFT JOIN users admin ON admin.id = a.admin_id
-                 ORDER BY a.created_at DESC
-                 LIMIT 5"
-            )
-            ->fetchAll();
-    }
-
     echo json_encode([
         'success' => true,
         'counts' => $counts,
         'recentRegistrations' => $recentRegistrations,
         'recentEvents' => $recentEvents,
         'genreBreakdown' => $genreBreakdown,
-        'recentActions' => $recentActions,
         'role' => $currentUser['role'] ?? null,
     ]);
 } catch (Throwable $e) {
