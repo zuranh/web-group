@@ -2,13 +2,13 @@
 
 Last updated: 2025-11-25
 
-This project is a small web app (frontend HTML/CSS/JS) with a lightweight PHP API backed by SQLite. It implements user registration/login (PHP sessions), a profile page, and an `events` endpoint with a proximity filter (Haversine).
+This project is a small web app (frontend HTML/CSS/JS) with a lightweight PHP API backed by MySQL. It implements user registration/login (PHP sessions), a profile page, and an `events` endpoint with a proximity filter (Haversine).
 
 ---
 
 ## What I added
 
-- `api/db.php` — creates `data/database.sqlite` (if missing) and seeds a sample event.
+- `api/db.php` — connects to MySQL using credentials from `api/config.php` or environment variables.
 - `api/register.php` — user registration endpoint (POST JSON: `name`, `email`, `password`, `age`).
 - `api/login.php` — login endpoint (POST JSON: `email`, `password`) — starts PHP session.
 - `api/me.php` — returns current session user (requires session cookie).
@@ -23,7 +23,7 @@ This project is a small web app (frontend HTML/CSS/JS) with a lightweight PHP AP
 - Project root: `c:\Users\carlo\OneDrive\Desktop\web project\Web group project`
 - PHP API: `./api/*.php`
 - Client script: `./scripts/account.js`
-- SQLite DB (created on first run): `./data/database.sqlite`
+- MySQL DB: create using `api/schema.sql`
 
 ## Quick local run (Windows PowerShell)
 
@@ -92,18 +92,9 @@ curl -X POST "http://localhost:8000/api/events.php" -H "Content-Type: applicatio
 - `login.js` uses `fetch('api/login.php', { credentials: 'include' })` so the session cookie is stored by the browser and used for subsequent calls like `api/me.php`.
 - `index.html` uses `navigator.geolocation` to request the user's location and then calls `api/events.php?lat=...&lng=...&radius=...` to render nearby events.
 
-## SQLite DB
+## Database
 
-- Location: `./data/database.sqlite` (created automatically when you first hit any API endpoint). If you need to inspect it, use DB Browser for SQLite or the `sqlite3` CLI.
-
-Example quick inspect with `sqlite3` (if installed):
-
-```powershell
-sqlite3 .\data\database.sqlite
-.tables
-SELECT * FROM events;
-SELECT * FROM users;
-```
+- The app expects a MySQL database created from `api/schema.sql`. Configure credentials in `api/config.php` or via environment variables (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`).
 
 ## Security & production notes
 
@@ -128,24 +119,23 @@ When deployed to a server, set the `EVENTS_ADMIN_SECRET` environment variable in
 
 ## Deployment options (simple)
 
-Below are easy deployment options for a beginner. All assume a simple PHP + SQLite app.
+Below are easy deployment options for a beginner. All assume PHP plus a MySQL database.
 
 1. Shared PHP hosting (easiest)
 
    - Upload the project files to your hosting provider via FTP or their file manager.
-   - Ensure PHP version is >= 7.4 and SQLite is enabled (most providers support this).
+   - Ensure PHP version is >= 7.4 and a MySQL database is available (most providers support this). Import `api/schema.sql` into your MySQL instance.
    - Do NOT expose `dev/db-debug.php` publicly — remove or restrict it before uploading.
-   - Set `EVENTS_ADMIN_SECRET` in your hosting control panel if available, or edit `api/config.php` (dev-only).
+   - Set `EVENTS_ADMIN_SECRET` and database environment variables in your hosting control panel if available, or edit `api/config.php` (dev-only).
 
 2. DigitalOcean App Platform or similar (recommended for small apps)
 
    - Create an App and point it at your GitHub repository (push the project to GitHub first).
-   - Set the build/runtime to use PHP and set environment variable `EVENTS_ADMIN_SECRET` in the platform settings.
-   - Use a managed DB (MySQL/Postgres) if you expect multi-user production traffic — SQLite is fine for small single-server apps but not for scaling.
+   - Set the build/runtime to use PHP and set environment variables for MySQL (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`) and `EVENTS_ADMIN_SECRET` in the platform settings.
 
 3. VPS (DigitalOcean droplet / Linode / VPS)
    - Provision a small Ubuntu droplet, install PHP and a web server (nginx/apache), deploy files, and configure PHP-FPM.
-   - Secure the server (firewall, HTTPS via Let's Encrypt) and set env vars in the service configuration.
+   - Secure the server (firewall, HTTPS via Let's Encrypt), set env vars in the service configuration, and point the app at your MySQL instance.
 
 ### MySQL / Local development
 
@@ -215,7 +205,7 @@ $env:EVENTS_ADMIN_SECRET = 'your-admin-secret'
 php -S localhost:8000
 ```
 
-The app will attempt to connect to MySQL when `DB_DRIVER` is set to `mysql` or when `DB_HOST` is present in the environment. If the MySQL connection fails, the code will fall back to SQLite for convenience during development.
+The app connects to MySQL using the values above. Ensure your MySQL server is running and reachable before starting the PHP server.
 
 Production checklist
 
@@ -263,7 +253,7 @@ If you used AI to write specific files or sections, list them here with brief no
 ## Course Deliverables Checklist
 
 - Backend: PHP API endpoints implemented (`api/*.php`) with server-side validation and structured JSON errors.
-- Persistence: Local SQLite used for development; recommend migrating to MySQL for final submission (see TODOs in repository).
+- Persistence: MySQL used for development and deployment (see `api/schema.sql`).
 - Frontend: Responsive HTML/CSS/JS, accessible labels, and consolidated stylesheet `everything.css`.
 - Research: References and AI disclosure included above.
 - Demo: Prepare a 5–7 minute demo script (create `DEMO.md` if you want help writing it).
