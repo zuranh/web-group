@@ -59,6 +59,12 @@ try {
         $params[':search'] = '%' . $_GET['search'] . '%';
     }
 
+    // Location text filter (partial match)
+    if (!empty($_GET['location'])) {
+        $where[] = "e.location LIKE :location";
+        $params[':location'] = '%' . $_GET['location'] . '%';
+    }
+
     // Genre filter against many-to-many map
     $genreFilterJoin = '';
     if (!empty($_GET['genre'])) {
