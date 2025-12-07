@@ -70,11 +70,11 @@ function safeHtml($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8')
 
   <h2>Events</h2>
   <?php
-    $events = $db->query('SELECT id,title,location,lat,lng,date,time,age_restriction,price,created_at FROM events')->fetchAll(PDO::FETCH_ASSOC);
+    $events = $db->query('SELECT id,title,location,lat,lng,date,time,price,created_at FROM events')->fetchAll(PDO::FETCH_ASSOC);
     if (!$events) {
         echo "<p>No events found.</p>";
     } else {
-        echo "<table><thead><tr><th>ID</th><th>Title</th><th>Location</th><th>Lat</th><th>Lng</th><th>Date</th><th>Time</th><th>Age</th><th>Price</th><th>Created</th></tr></thead><tbody>";
+        echo "<table><thead><tr><th>ID</th><th>Title</th><th>Location</th><th>Lat</th><th>Lng</th><th>Date</th><th>Time</th><th>Price</th><th>Created</th></tr></thead><tbody>";
         foreach ($events as $e) {
             echo '<tr>';
             echo '<td>'.safeHtml($e['id']).'</td>';
@@ -84,7 +84,6 @@ function safeHtml($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8')
             echo '<td>'.safeHtml($e['lng']).'</td>';
             echo '<td>'.safeHtml($e['date']).'</td>';
             echo '<td>'.safeHtml($e['time']).'</td>';
-            echo '<td>'.safeHtml($e['age_restriction']).'</td>';
             echo '<td>'.safeHtml($e['price']).'</td>';
             echo '<td>'.safeHtml($e['created_at']).'</td>';
             echo '</tr>';

@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS `events` (
   `lng` DOUBLE,
   `date` DATE,
   `time` TIME,
-  `age_restriction` INT,
   `price` DECIMAL(10,2) DEFAULT 0.00,
   `image_url` VARCHAR(500),
   `status` ENUM('draft','published','archived') DEFAULT 'published',

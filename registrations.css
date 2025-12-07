@@ -25,38 +25,6 @@ body {
   z-index: 1000;
 }
 
-#navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 32px;
-  background: #0c1b33;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.tm-logo a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.tm-links a {
-  color: #d9e3f0;
-  margin-left: 18px;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-
-.tm-links a.active,
-.tm-links a:hover {
-  background: #f9b234;
-  color: #111;
-}
-
 #registrations-header {
   padding: 48px 32px 16px;
 }

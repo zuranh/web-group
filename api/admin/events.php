@@ -97,7 +97,6 @@ function ensureEventsSchema(PDO $db): void
             `lng` DOUBLE,
             `date` DATE,
             `time` TIME,
-            `age_restriction` INT,
             `price` DECIMAL(10,2) DEFAULT 0.00,
             `image_url` VARCHAR(500),
             `status` ENUM('draft','published','archived') DEFAULT 'published',
@@ -121,7 +120,6 @@ function ensureEventsSchema(PDO $db): void
         'genre_id' => 'ADD COLUMN `genre_id` INT NULL',
         'image_url' => 'ADD COLUMN `image_url` VARCHAR(500) NULL',
         'price' => 'ADD COLUMN `price` DECIMAL(10,2) DEFAULT 0.00',
-        'age_restriction' => 'ADD COLUMN `age_restriction` INT NULL',
         'lat' => 'ADD COLUMN `lat` DOUBLE NULL',
         'lng' => 'ADD COLUMN `lng` DOUBLE NULL',
     ];
@@ -170,8 +168,6 @@ if ($method === 'POST') {
         }
     }
 
-    $status = 'published';
-
     $genres = isset($input['genres']) && is_array($input['genres']) ? $input['genres'] : [];
 
     $primaryGenre = $genres[0] ?? null;
@@ -180,9 +176,9 @@ if ($method === 'POST') {
 
     $stmt = $db->prepare(
         "INSERT INTO events
-            (name, description, location, lat, lng, date, time, age_restriction, price, image_url, status, genre_id, owner_id, capacity, available_spots)
+            (name, description, location, lat, lng, date, time, price, image_url, genre_id, owner_id, capacity, available_spots)
          VALUES
-            (:name, :description, :location, :lat, :lng, :date, :time, :age_restriction, :price, :image_url, :status, :genre_id, :owner_id, :capacity, :available_spots)"
+            (:name, :description, :location, :lat, :lng, :date, :time, :price, :image_url, :genre_id, :owner_id, :capacity, :available_spots)"
     );
 
     $stmt->execute([
@@ -193,10 +189,8 @@ if ($method === 'POST') {
         ':lng' => sanitizeFloat($input['lng'] ?? null),
         ':date' => $input['date'],
         ':time' => $input['time'],
-        ':age_restriction' => sanitizeInt($input['age_restriction'] ?? null),
         ':price' => sanitizeFloat($input['price'] ?? 0),
         ':image_url' => $input['image_url'] ?? null,
-        ':status' => $status,
         ':genre_id' => $primaryGenre,
         ':owner_id' => $currentUser['id'],
         ':capacity' => $capacity ?? 0,
@@ -210,10 +204,6 @@ if ($method === 'POST') {
         foreach ($genres as $genreId) {
             $genreStmt->execute([':event_id' => $eventId, ':genre_id' => $genreId]);
         }
-    }
-
-    if (method_exists($auth, 'logAction')) {
-        $auth->logAction($currentUser['id'], 'create_event', 'event', $eventId, json_encode(['name' => $input['name']]), $_SERVER['REMOTE_ADDR'] ?? null);
     }
 
     respond(201, ['success' => true, 'event_id' => (int) $eventId, 'message' => 'Event created successfully']);
@@ -233,11 +223,6 @@ if ($method === 'PUT') {
         respond(404, ['success' => false, 'error' => 'Event not found']);
     }
 
-    $status = $input['status'] ?? $existing['status'];
-    if (!in_array($status, ['draft', 'published', 'archived'], true)) {
-        respond(422, ['success' => false, 'error' => 'Invalid status']);
-    }
-
     $capacity = array_key_exists('capacity', $input) ? sanitizeInt($input['capacity']) : $existing['capacity'];
     $regStmt = $db->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = :event_id AND status = 'registered'");
     $regStmt->execute([':event_id' => $eventId]);
@@ -253,10 +238,9 @@ if ($method === 'PUT') {
             lng = :lng,
             date = :date,
             time = :time,
-            age_restriction = :age_restriction,
             price = :price,
             image_url = :image_url,
-            status = :status,
+            status = 'published',
             genre_id = :genre_id,
             capacity = :capacity,
             available_spots = :available_spots
@@ -271,10 +255,8 @@ if ($method === 'PUT') {
         ':lng' => array_key_exists('lng', $input) ? sanitizeFloat($input['lng']) : $existing['lng'],
         ':date' => $input['date'] ?? $existing['date'],
         ':time' => $input['time'] ?? $existing['time'],
-        ':age_restriction' => array_key_exists('age_restriction', $input) ? sanitizeInt($input['age_restriction']) : $existing['age_restriction'],
         ':price' => array_key_exists('price', $input) ? sanitizeFloat($input['price']) : $existing['price'],
         ':image_url' => array_key_exists('image_url', $input) ? $input['image_url'] : $existing['image_url'],
-        ':status' => $status,
         ':genre_id' => isset($input['genres'][0]) ? $input['genres'][0] : $existing['genre_id'],
         ':capacity' => $capacity,
         ':available_spots' => $available,
@@ -287,10 +269,6 @@ if ($method === 'PUT') {
         foreach ($input['genres'] as $genreId) {
             $genreStmt->execute([':event_id' => $eventId, ':genre_id' => $genreId]);
         }
-    }
-
-    if (method_exists($auth, 'logAction')) {
-        $auth->logAction($currentUser['id'], 'update_event', 'event', $eventId, json_encode($input), $_SERVER['REMOTE_ADDR'] ?? null);
     }
 
     respond(200, ['success' => true, 'message' => 'Event updated successfully']);
@@ -312,10 +290,6 @@ if ($method === 'DELETE') {
 
     $db->prepare('DELETE FROM event_genres WHERE event_id = :event_id')->execute([':event_id' => $eventId]);
     $db->prepare('DELETE FROM events WHERE id = :id')->execute([':id' => $eventId]);
-
-    if (method_exists($auth, 'logAction')) {
-        $auth->logAction($currentUser['id'], 'delete_event', 'event', $eventId, json_encode(['name' => $event['name']]), $_SERVER['REMOTE_ADDR'] ?? null);
-    }
 
     respond(200, ['success' => true, 'message' => 'Event deleted successfully']);
 }

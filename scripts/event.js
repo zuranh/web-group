@@ -45,8 +45,29 @@ async function loadCurrentUser(firebaseUser) {
 }
 
 function updateUIForLoggedIn() {
+  const loginBtn = document.getElementById("login-btn");
+  const userMenu = document.getElementById("user-menu");
+  if (loginBtn && userMenu) {
+    loginBtn.style.display = "none";
+    userMenu.style.display = "block";
+    const avatar = document.getElementById("user-avatar");
+    if (avatar) {
+      avatar.textContent = currentUser?.name
+        ? currentUser.name.charAt(0).toUpperCase()
+        : "U";
+    }
+  }
+
+  const favoritesLink = document.getElementById("favorites-link");
+  if (favoritesLink) favoritesLink.style.display = "block";
+
+  const accountLink = document.getElementById("profile-link");
+  if (accountLink) accountLink.style.display = "block";
+
   if (currentUser && ["admin", "owner"].includes(currentUser.role)) {
     document.getElementById("admin-link").style.display = "block";
+    const adminBadge = document.getElementById("admin-badge");
+    if (adminBadge) adminBadge.style.display = "block";
   }
   const regLink = document.getElementById("registrations-link");
   if (regLink) {
@@ -90,10 +111,18 @@ function renderEvent() {
   const genresContainer = document.getElementById("event-genres");
   genresContainer.innerHTML = "";
   if (Array.isArray(event.genres) && event.genres.length) {
-    event.genres.forEach((gName) => {
+    event.genres.forEach((genre) => {
       const badge = document.createElement("span");
       badge.className = "genre-badge";
-      badge.textContent = gName;
+      const label =
+        typeof genre === "string"
+          ? genre
+          : genre && typeof genre.name === "string"
+          ? genre.name
+          : "";
+
+      if (!label) return;
+      badge.textContent = label;
       genresContainer.appendChild(badge);
     });
   } else if (event.genre_name) {
@@ -107,18 +136,11 @@ function renderEvent() {
   document.getElementById("info-date").textContent = event.date || "TBA";
   document.getElementById("info-time").textContent = event.time || "TBA";
   document.getElementById("info-location").textContent = event.location || "TBA";
-    const price =
+  const price =
     event.price && parseFloat(event.price) > 0
       ? `$${parseFloat(event.price).toFixed(2)}`
       : "FREE";
   document.getElementById("info-price").textContent = price;
-
-  // Age restriction: show "All ages" only if 0, null, undefined, or empty string
-  const ageRaw = event.age_restriction;
-  const ageNum = ageRaw !== null && ageRaw !== undefined && ageRaw !== '' ? Number(ageRaw) : 0;
-  document.getElementById("info-age").textContent =
-    Number.isFinite(ageNum) && ageNum > 0 ? `${ageNum}+` : "All ages";
-  document.getElementById("info-status").textContent = event.status || "Published";
 
   if (event.creator_name) {
     const createdAt = event.created_at ? new Date(event.created_at).toLocaleDateString() : "-";

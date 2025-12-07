@@ -31,8 +31,29 @@ async function loadCurrentUser(firebaseUser) {
 }
 
 function updateUIForLoggedIn() {
+  const loginBtn = document.getElementById("login-btn");
+  const userMenu = document.getElementById("user-menu");
+  if (loginBtn && userMenu) {
+    loginBtn.style.display = "none";
+    userMenu.style.display = "block";
+    const avatar = document.getElementById("user-avatar");
+    if (avatar) {
+      avatar.textContent = currentUser?.name
+        ? currentUser.name.charAt(0).toUpperCase()
+        : "U";
+    }
+  }
+
+  const favoritesLink = document.getElementById("favorites-link");
+  if (favoritesLink) favoritesLink.style.display = "block";
+
+  const accountLink = document.getElementById("profile-link");
+  if (accountLink) accountLink.style.display = "block";
+
   if (currentUser && ["admin", "owner"].includes(currentUser.role)) {
     document.getElementById("admin-link").style.display = "block";
+    const adminBadge = document.getElementById("admin-badge");
+    if (adminBadge) adminBadge.style.display = "block";
   }
   const regLink = document.getElementById("registrations-link");
   if (regLink) {
@@ -101,7 +122,10 @@ function renderFavorites() {
     const card = document.createElement("div");
     card.className = "favorite-card";
 
-    const imageUrl = event.image_url || "https://via. placeholder.com/400x200?text=Event";
+    const imageUrl =
+      event.image_url && typeof event.image_url === "string" && event.image_url.trim()
+        ? event.image_url
+        : "https://via.placeholder.com/400x200?text=Event";
     const price = event.price > 0 ? `$${parseFloat(event.price).toFixed(2)}` : "FREE";
     const favoritedDate = new Date(event.favorited_at).toLocaleDateString("en-US", {
       year: "numeric",
@@ -109,30 +133,39 @@ function renderFavorites() {
       day: "numeric",
     });
 
+    const genreLabels = Array.isArray(event.genres)
+      ? event.genres
+          .map((genre) =>
+            typeof genre === "string" ? genre : genre && typeof genre.name === "string" ? genre.name : ""
+          )
+          .filter(Boolean)
+      : [];
+    const genreIcons = Array.isArray(event.genre_icons) ? event.genre_icons : [];
+
     card.innerHTML = `
                     <img src="${imageUrl}" alt="${event.title}" class="favorite-image" onerror="this.src='https://via.placeholder.com/400x200?text=Event'">
 
                     <div class="favorite-info">
                         <h3>${event.title}</h3>
 
-                        <p class="event-details">
+                            <p class="event-details">
                             📍 ${event.location || "Location TBA"}<br>
                             📅 ${event.date || "Date TBA"} ${event.time ? "• 🕐 " + event.time : ""}<br>
-                            ${event.age_restriction ? `🔞 ${event.age_restriction}+ • ` : ""}
                         </p>
 
                         <span class="event-price">${price}</span>
 
                         <div class="event-genres">
-                            ${(event.genre_icons || [])
-                              .map(
-                                (icon, i) => `
-                                <span class="genre-tag">
-                                    <span>${icon}</span>
-                                    <span>${event.genres[i]}</span>
-                                </span>
-                            `
-                              )
+                            ${genreLabels
+                              .map((label, i) => {
+                                const icon = genreIcons[i] || "";
+                                return `
+                                  <span class=\"genre-tag\">
+                                    ${icon ? `<span>${icon}</span>` : ""}
+                                    <span>${label}</span>
+                                  </span>
+                                `;
+                              })
                               .join("")}
                         </div>
 

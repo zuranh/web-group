@@ -10,8 +10,8 @@ Goal: demonstrate core flows, architecture, and lessons learned.
 2. Architecture (60s)
 
 - Frontend: static HTML/CSS/vanilla JS (geolocation, fetch API).
-- Backend: PHP REST-like endpoints (`api/*.php`) using PDO; dev uses SQLite by default, can connect to MySQL via env vars.
-- Persistence: `api/schema.sql` for MySQL; `data/database.sqlite` for local dev fallback.
+- Backend: PHP REST-like endpoints (`api/*.php`) using PDO against MySQL (configured via env vars).
+- Persistence: `api/schema.sql` for MySQL.
 
 3. Core user flow demo (2–3 min)
 
@@ -31,7 +31,7 @@ Goal: demonstrate core flows, architecture, and lessons learned.
 
 6. Lessons & next steps (30s)
 
-- What worked: fast dev loop with PHP built-in server and SQLite fallback, simple API design.
+- What worked: fast dev loop with PHP built-in server and a simple MySQL-backed API design.
 - What to improve: production security (HTTPS, secure cookies, proper admin auth), deploy to hosted MySQL and CI.
 
 Notes for presenters: keep UI steps simple and focus on backend features if time runs short.

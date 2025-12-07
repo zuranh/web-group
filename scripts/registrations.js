@@ -31,8 +31,29 @@ async function loadCurrentUser(firebaseUser) {
 }
 
 function updateUIForLoggedIn() {
+  const loginBtn = document.getElementById("login-btn");
+  const userMenu = document.getElementById("user-menu");
+  if (loginBtn && userMenu) {
+    loginBtn.style.display = "none";
+    userMenu.style.display = "block";
+    const avatar = document.getElementById("user-avatar");
+    if (avatar) {
+      avatar.textContent = currentUser?.name
+        ? currentUser.name.charAt(0).toUpperCase()
+        : "U";
+    }
+  }
+
+  const favoritesLink = document.getElementById("favorites-link");
+  if (favoritesLink) favoritesLink.style.display = "block";
+
+  const accountLink = document.getElementById("profile-link");
+  if (accountLink) accountLink.style.display = "block";
+
   if (currentUser && ["admin", "owner"].includes(currentUser.role)) {
     document.getElementById("admin-link").style.display = "block";
+    const adminBadge = document.getElementById("admin-badge");
+    if (adminBadge) adminBadge.style.display = "block";
   }
 }
 

@@ -47,7 +47,7 @@ error_log("Favorites API - Firebase UID: " . ($currentUser['firebase_uid'] ??  '
             LEFT JOIN users u ON e.owner_id = u.id
             LEFT JOIN event_genres eg ON e.id = eg.event_id
             LEFT JOIN genres g ON eg.genre_id = g.id
-            WHERE uf.user_id = :user_id AND e.status = 'published'
+            WHERE uf.user_id = :user_id
             GROUP BY e.id
             ORDER BY uf.created_at DESC
         ");
@@ -77,8 +77,8 @@ error_log("Favorites API - Firebase UID: " . ($currentUser['firebase_uid'] ??  '
         
         $eventId = intval($data['event_id']);
         
-        // Check if event exists and is published
-        $checkStmt = $db->prepare("SELECT id FROM events WHERE id = :id AND status = 'published'");
+        // Check if event exists
+        $checkStmt = $db->prepare("SELECT id FROM events WHERE id = :id");
         $checkStmt->execute([':id' => $eventId]);
         if (! $checkStmt->fetch()) {
             http_response_code(404);
